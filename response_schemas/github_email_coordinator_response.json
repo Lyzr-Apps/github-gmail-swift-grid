@@ -1,0 +1,30 @@
+{
+  "agent_name": "GitHub Email Coordinator",
+  "agent_id": "698dad3c9bedf36d52f84667",
+  "description": "Orchestrates GitHub data fetching and email sharing workflow",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "result": {
+      "repositories": [
+        {}
+      ],
+      "commits": [
+        {}
+      ],
+      "emailStatus": "string"
+    }
+  },
+  "example_response": {
+    "result": {
+      "repositories": [
+        {}
+      ],
+      "commits": [
+        {}
+      ],
+      "emailStatus": "sample string"
+    }
+  }
+}

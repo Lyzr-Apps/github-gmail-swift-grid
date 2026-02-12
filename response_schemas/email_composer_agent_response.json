@@ -1,0 +1,22 @@
+{
+  "agent_name": "Email Composer Agent",
+  "agent_id": "698dad2e75b236a82be3cfbc",
+  "description": "Composes and sends formatted emails via Gmail with repository and commit summaries",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "result": {
+      "status": "string",
+      "recipient": "string",
+      "message": "string"
+    }
+  },
+  "example_response": {
+    "result": {
+      "status": "sample string",
+      "recipient": "sample string",
+      "message": "sample string"
+    }
+  }
+}

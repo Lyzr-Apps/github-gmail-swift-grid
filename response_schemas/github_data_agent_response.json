@@ -1,0 +1,48 @@
+{
+  "agent_name": "GitHub Data Agent",
+  "agent_id": "698dad212dc7772e4cc0755e",
+  "description": "Fetches GitHub repositories and commit history from authenticated user account",
+  "agent_type": "json",
+  "accessor": "result",
+  "auto_generated": true,
+  "response_schema": {
+    "result": {
+      "repositories": [
+        {
+          "name": "string",
+          "description": "string",
+          "language": "string",
+          "stars": "number",
+          "lastUpdated": "string",
+          "commits": [
+            {
+              "message": "string",
+              "author": "string",
+              "timestamp": "string"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "example_response": {
+    "result": {
+      "repositories": [
+        {
+          "name": "sample string",
+          "description": "sample string",
+          "language": "sample string",
+          "stars": 0,
+          "lastUpdated": "sample string",
+          "commits": [
+            {
+              "message": "sample string",
+              "author": "sample string",
+              "timestamp": "sample string"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

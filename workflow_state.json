@@ -1,0 +1,89 @@
+{
+  "workflow": {
+    "name": "GitHub Repository & Commit Tracker with Email Sharing",
+    "description": "Manager-subagent workflow for fetching GitHub repositories and commits, then sharing via email",
+    "created_at": "2026-02-12",
+    "workflow_type": "manager-subagent"
+  },
+  "agents": {
+    "manager": {
+      "agent_id": "698dad3c9bedf36d52f84667",
+      "name": "GitHub Email Coordinator",
+      "role": "manager",
+      "description": "Orchestrates GitHub data fetching and email sharing workflow",
+      "model": "gpt-4.1",
+      "provider": "openai",
+      "managed_agents": [
+        "698dad212dc7772e4cc0755e",
+        "698dad2e75b236a82be3cfbc"
+      ]
+    },
+    "sub_agents": [
+      {
+        "agent_id": "698dad212dc7772e4cc0755e",
+        "name": "GitHub Data Agent",
+        "role": "sub-agent",
+        "description": "Fetches GitHub repositories and commit history from authenticated user account",
+        "model": "gpt-4.1",
+        "provider": "openai",
+        "tools": ["github"],
+        "actions": [
+          "GITHUB_ACTIVITY_LIST_REPO_S_STARRED_BY_AUTHENTICATED_USER",
+          "GITHUB_COMPARE_TWO_COMMITS"
+        ]
+      },
+      {
+        "agent_id": "698dad2e75b236a82be3cfbc",
+        "name": "Email Composer Agent",
+        "role": "sub-agent",
+        "description": "Composes and sends formatted emails via Gmail with repository and commit summaries",
+        "model": "gpt-4.1",
+        "provider": "openai",
+        "tools": ["gmail"],
+        "actions": ["GMAIL_SEND_EMAIL"]
+      }
+    ]
+  },
+  "response_schemas": {
+    "github_email_coordinator": {
+      "file": "response_schemas/github_email_coordinator_response.json",
+      "accessor": "result",
+      "structure": {
+        "repositories": "array",
+        "commits": "array",
+        "emailStatus": "string"
+      }
+    },
+    "github_data_agent": {
+      "file": "response_schemas/github_data_agent_response.json",
+      "accessor": "result",
+      "structure": {
+        "repositories": "array[{name, description, language, stars, lastUpdated, commits}]"
+      }
+    },
+    "email_composer_agent": {
+      "file": "response_schemas/email_composer_agent_response.json",
+      "accessor": "result",
+      "structure": {
+        "status": "string",
+        "recipient": "string",
+        "message": "string"
+      }
+    }
+  },
+  "integrations": {
+    "github": {
+      "tool_source": "composio",
+      "required_auth": true,
+      "actions": [
+        "GITHUB_ACTIVITY_LIST_REPO_S_STARRED_BY_AUTHENTICATED_USER",
+        "GITHUB_COMPARE_TWO_COMMITS"
+      ]
+    },
+    "gmail": {
+      "tool_source": "composio",
+      "required_auth": true,
+      "actions": ["GMAIL_SEND_EMAIL"]
+    }
+  }
+}
