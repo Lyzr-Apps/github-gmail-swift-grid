@@ -306,16 +306,24 @@ export default function Home() {
 
     setLoading(true)
     setError(null)
-    setActiveAgent(MANAGER_AGENT_ID)
+    setActiveAgent(GITHUB_DATA_AGENT_ID)
 
     try {
+      // Call GitHub Data Agent directly to test
       const result = await callAIAgent(
-        'Fetch all my GitHub repositories and recent commits',
-        MANAGER_AGENT_ID
+        'Fetch my GitHub repositories with their commit history',
+        GITHUB_DATA_AGENT_ID
       )
 
+      console.log('Full agent response:', result)
+      console.log('Response data:', result?.response)
+      console.log('Response result:', result?.response?.result)
+
       if (result.success) {
-        const data = result?.response?.result as ManagerResponse | undefined
+        const data = result?.response?.result
+        console.log('Parsed data:', data)
+        console.log('Repositories array:', data?.repositories)
+
         const repos = Array.isArray(data?.repositories) ? data.repositories : []
         setRepositories(repos)
 
@@ -323,10 +331,12 @@ export default function Home() {
           setError('No repositories found. Please ensure your GitHub account is connected.')
         }
       } else {
+        console.error('Agent call failed:', result.error)
         setError(result.error || 'Failed to fetch repositories')
       }
     } catch (err) {
-      setError('An unexpected error occurred')
+      console.error('Exception during fetch:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     } finally {
       setLoading(false)
       setActiveAgent(null)
