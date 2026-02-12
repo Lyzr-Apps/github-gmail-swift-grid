@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { callAIAgent } from '@/lib/aiAgent'
-import { FiGithub, FiStar, FiGitCommit, FiMail, FiLoader, FiCheck, FiAlertCircle, FiChevronDown, FiChevronUp, FiClock, FiUser } from 'react-icons/fi'
+import { FiGithub, FiStar, FiGitCommit, FiMail, FiLoader, FiCheck, FiAlertCircle, FiChevronDown, FiChevronUp, FiClock, FiUser, FiRefreshCw } from 'react-icons/fi'
 
 // Agent IDs
 const MANAGER_AGENT_ID = '698dad3c9bedf36d52f84667'
@@ -148,6 +148,45 @@ export default function Home() {
   const [recipientEmail, setRecipientEmail] = useState('')
   const [activeAgent, setActiveAgent] = useState<string | null>(null)
   const [useSampleData, setUseSampleData] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState<'unknown' | 'connected' | 'disconnected' | 'checking'>('unknown')
+  const [statusMessage, setStatusMessage] = useState<string>('')
+
+  // Check GitHub connection status
+  const checkConnectionStatus = async () => {
+    setConnectionStatus('checking')
+    setStatusMessage('')
+    setActiveAgent(GITHUB_DATA_AGENT_ID)
+
+    try {
+      const result = await callAIAgent(
+        'Check if my GitHub account is connected and return the connection status',
+        GITHUB_DATA_AGENT_ID
+      )
+
+      if (result.success) {
+        // If we get a successful response, GitHub is connected
+        setConnectionStatus('connected')
+        setStatusMessage('GitHub account is connected and ready')
+      } else {
+        // If there's an error, likely not connected
+        const errorMsg = result.error || ''
+        if (errorMsg.toLowerCase().includes('not connected') ||
+            errorMsg.toLowerCase().includes('authentication') ||
+            errorMsg.toLowerCase().includes('oauth')) {
+          setConnectionStatus('disconnected')
+          setStatusMessage('GitHub account is not connected. Please connect your account.')
+        } else {
+          setConnectionStatus('disconnected')
+          setStatusMessage(errorMsg || 'Unable to verify connection status')
+        }
+      }
+    } catch (err) {
+      setConnectionStatus('disconnected')
+      setStatusMessage('Error checking connection status')
+    } finally {
+      setActiveAgent(null)
+    }
+  }
 
   // Sample data for demonstration
   const sampleRepositories: Repository[] = [
@@ -364,6 +403,41 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              {/* Connection Status Button */}
+              <button
+                onClick={checkConnectionStatus}
+                disabled={connectionStatus === 'checking'}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
+                  connectionStatus === 'connected'
+                    ? 'border-accent/30 bg-accent/10 text-accent hover:bg-accent/20'
+                    : connectionStatus === 'disconnected'
+                    ? 'border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20'
+                    : 'border-border bg-secondary text-muted-foreground hover:bg-secondary/80'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {connectionStatus === 'checking' ? (
+                  <>
+                    <FiLoader className="w-4 h-4 animate-spin" />
+                    Checking...
+                  </>
+                ) : connectionStatus === 'connected' ? (
+                  <>
+                    <FiCheck className="w-4 h-4" />
+                    Connected
+                  </>
+                ) : connectionStatus === 'disconnected' ? (
+                  <>
+                    <FiAlertCircle className="w-4 h-4" />
+                    Disconnected
+                  </>
+                ) : (
+                  <>
+                    <FiRefreshCw className="w-4 h-4" />
+                    Check Status
+                  </>
+                )}
+              </button>
+
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Sample Data</span>
                 <button
@@ -392,6 +466,33 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Connection Status Message */}
+        {statusMessage && (
+          <div className={`mb-6 rounded-lg p-4 flex items-start gap-3 ${
+            connectionStatus === 'connected'
+              ? 'bg-accent/10 border border-accent/20'
+              : 'bg-destructive/10 border border-destructive/20'
+          }`}>
+            {connectionStatus === 'connected' ? (
+              <FiCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+            ) : (
+              <FiAlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            )}
+            <div>
+              <p className={`text-sm font-medium ${
+                connectionStatus === 'connected' ? 'text-accent' : 'text-destructive'
+              }`}>
+                {connectionStatus === 'connected' ? 'Connected' : 'Connection Issue'}
+              </p>
+              <p className={`text-sm mt-1 ${
+                connectionStatus === 'connected' ? 'text-accent/80' : 'text-destructive/80'
+              }`}>
+                {statusMessage}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Section - Repositories */}
           <div className="lg:col-span-2 space-y-6">
